@@ -45,12 +45,12 @@ function moveLogs(){
 			grep @$domain $file | grep -v "postfix-policyd" | grep -v postgrey >> ../maillog/$domain/$data-bulk.log
 			grep @$domain $file | grep "Password mismatch" >> ../maillog/$domain/$data-failed-auth.log
 			
-			if [ -d ../maillog/$domain/$data-bulk.log ]
+			if [ -f ../maillog/$domain/$data-bulk.log ]
 			then
 				rm ../maillog/$domain/$data-bulk.log
 			fi
 			
-			if [ -d ../maillog/$domain/$data-failed-auth.log ]
+			if [ -f ../maillog/$domain/$data-failed-auth.log ]
 			then
 				rm ../maillog/$domain/$data-failed-auth.log
 			fi
