@@ -68,10 +68,10 @@ function getLogs(){
 
 	if (( lastLine > currentLine )); then #if logrotate
 		tail +1 /var/log/mail.log.1 | head -$((currentLine - lastLine )) > $file
-    	lastLine=1
-    	#move logs to postfixadmin
+    		lastLine=1
+    		#move logs to postfixadmin
 		moveLogs $file
-    	return
+    		return
 	fi
 	
 
@@ -110,8 +110,8 @@ do
 
    	if [[ "$ATIME" != "$LTIME" ]]
    	then    
-       getLogs
-       LTIME=$ATIME
+        getLogs
+        LTIME=$ATIME
    	fi
    	sleep $timeToSleep
 
