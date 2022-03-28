@@ -47,7 +47,7 @@ function moveLogs(){
 			
 			if [ -d ../maillog/$domain/$data-bulk.log ]
 			then
-				rm $data-bulk.log
+				rm ../maillog/$domain/$data-bulk.log
 			fi
 			
 			if [ -d ../maillog/$domain/$data-failed-auth.log ]
