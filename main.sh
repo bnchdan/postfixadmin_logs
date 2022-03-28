@@ -110,8 +110,8 @@ do
 
    	if [[ "$ATIME" != "$LTIME" ]]
    	then    
-        getLogs
-        LTIME=$ATIME
+        	getLogs
+        	LTIME=$ATIME
    	fi
    	sleep $timeToSleep
 
