@@ -5,7 +5,7 @@ lastLine=1
 currentLine=0
 
 logFile="/var/log/mail.log"
-timeToSleep='5'
+timeToSleep='300'
 
 #Set initial time of file
 LTIME=`stat -c %Z $logFile`
