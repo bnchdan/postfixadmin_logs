@@ -1,8 +1,8 @@
 #!/bin/bash
 cd $(dirname $0)
 
-lastLine='0'
-currentLine='0'
+lastLine=1
+currentLine=0
 
 logFile="/var/log/mail.log"
 timeToSleep='5'
@@ -63,10 +63,19 @@ function getLogs(){
 	#get nr. of last line from $logFile
 	currentLine=`wc -l $logFile | cut -d " " -f 1`
 
+
 	file=`date '+logs_for_PostfixAdmin_%Y_%d_%m_%H_%M_%S'`
+
+	if (( lastLine > currentLine )); then #if logrotate
+		tail +1 /var/log/mail.log.1 | head -$((currentLine - lastLine )) > $file
+    	lastLine=1
+    	#move logs to postfixadmin
+		moveLogs $file
+    	return
+	fi
 	
-	tail +1 /var/log/mail.log | head -$((currentLine - lastLine )) > $file
-	
+
+	tail +$((lastLine)) /var/log/mail.log | head -$((currentLine - lastLine )) > $file
 	#move logs to postfixadmin
 	moveLogs $file
 
@@ -101,10 +110,7 @@ do
 
    	if [[ "$ATIME" != "$LTIME" ]]
    	then    
-       echo "change..."
        getLogs
-    
-
        LTIME=$ATIME
    	fi
    	sleep $timeToSleep
