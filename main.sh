@@ -4,7 +4,7 @@ cd $(dirname $0)
 lastLine=1
 currentLine=0
 
-logFile="mail.log"
+logFile="/var/log/mail.log"
 timeToSleep='5'
 
 #Set initial time of file
