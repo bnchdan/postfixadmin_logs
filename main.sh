@@ -4,8 +4,8 @@ cd $(dirname $0)
 lastLine=1
 currentLine=0
 
-logFile="/var/log/mail.log"
-timeToSleep='300'
+logFile="mail.log"
+timeToSleep='5'
 
 #Set initial time of file
 LTIME=`stat -c %Z $logFile`
@@ -16,7 +16,7 @@ LTIME=`stat -c %Z $logFile`
 function moveLogs(){	
 	
 	file=$1
-
+	data=$2
 	#delete logs older than 30 days
 	find ../maillog/ -type f -mtime +30 -delete
 
@@ -28,38 +28,32 @@ function moveLogs(){
 	fi
 
 
-	data=`date --date='1 day ago' +%F`
-
-	mysql -u root --skip-column-names --execute="USE postfix; SELECT username,domain FROM domain_admins WHERE active=1 AND domain <> 'ALL';" | while read username domain
+	mysql -u root --skip-column-names --execute="USE postfix; select domain from domain;" | while read domain
 		    do
 
 			#check if folder for domain doesn t exists
 			if [ ! -d ../maillog/$domain ]
 			then
-	    			echo "Directory does not exists for "$domain
+	    			#echo "Directory does not exists for "$domain
 				#create direcory
 				mkdir ../maillog/$domain			
 			fi
-
 			#grep by domain
 			grep @$domain $file | grep -v "postfix-policyd" | grep -v postgrey >> ../maillog/$domain/$data-bulk.log
 			grep @$domain $file | grep "Password mismatch" >> ../maillog/$domain/$data-failed-auth.log
 			
-			if [ -f ../maillog/$domain/$data-bulk.log.gz ]
-			then
-				rm ../maillog/$domain/$data-bulk.log.gz
-			fi
-			
-			if [ -f ../maillog/$domain/$data-failed-auth.log.gz ]
-			then
-				rm ../maillog/$domain/$data-failed-auth.log.gz
-			fi
+
+			#cat ../maillog/$domain/$data-bulk.log 
 			
 			#zip
-			gzip ../maillog/$domain/$data-bulk.log
-			gzip ../maillog/$domain/$data-failed-auth.log
+			cat ../maillog/$domain/$data-bulk.log | gzip >> ../maillog/$domain/$data-bulk.log.gz 
+			cat ../maillog/$domain/$data-failed-auth.log | gzip  >> ../maillog/$domain/$data-failed-auth.log.gz			
+			
+			#echo $domain
+			rm ../maillog/$domain/$data-bulk.log
+			rm ../maillog/$domain/$data-failed-auth.log
 
-			echo $domain			
+			#echo $domain			
 		    done
 }
 
@@ -73,21 +67,27 @@ function getLogs(){
 	#get nr. of last line from $logFile
 	currentLine=`wc -l $logFile | cut -d " " -f 1`
 
-
+	echo 'currentLine' $currentLine
 	file=`date '+logs_for_PostfixAdmin_%Y_%d_%m_%H_%M_%S'`
+	echo 'lastLine' $lastLine
+	if [ $lastLine -gt $currentLine ]; then #if logrotate
+		echo "logrotate"
+		#tail +1 $logFile".1" | head -$((currentLine - lastLine )) > $file
+    		tail +$((lastLine)) $logFile".1" > $file
+		lastLine=1
 
-	if (( lastLine > currentLine )); then #if logrotate
-		tail +1 /var/log/mail.log.1 | head -$((currentLine - lastLine )) > $file
-    		lastLine=1
     		#move logs to postfixadmin
-		moveLogs $file
+		data=`date --date='now' +%F`
+		moveLogs $file $data
     		return
 	fi
 	
 
-	tail +$((lastLine)) /var/log/mail.log | head -$((currentLine - lastLine )) > $file
+	tail +$((lastLine)) $logFile | head -$((currentLine - lastLine )) > $file
+	
 	#move logs to postfixadmin
-	moveLogs $file
+	data=`date --date='now' +%F`
+	moveLogs $file $data
 
 	lastLine=$currentLine
 
@@ -120,9 +120,12 @@ do
 
    	if [[ "$ATIME" != "$LTIME" ]]
    	then    
+		echo "change";
         	getLogs
         	LTIME=$ATIME
    	fi
    	sleep $timeToSleep
+
+
 
 done
