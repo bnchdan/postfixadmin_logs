@@ -118,9 +118,9 @@ while true
 do
 	ATIME=`stat -c %Z $logFile`
 
-   	if [[ "$ATIME" != "$LTIME" ]]
+   	if [[ "$ATIME" != "$LTIME" ]] #if new logs
    	then    
-		echo "change";
+		
         	getLogs
         	LTIME=$ATIME
    	fi
