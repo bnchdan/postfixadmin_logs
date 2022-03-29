@@ -1,4 +1,12 @@
 #!/bin/bash
+# postfixadmin/
+# |----->/cron/main.sh
+# |
+# |----->/mailog
+# 	 |----->domain1
+# 	 |----->domain2
+
+
 cd $(dirname $0)
 
 lastLine=1	
