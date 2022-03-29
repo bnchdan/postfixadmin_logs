@@ -1,15 +1,15 @@
 #!/bin/bash
 cd $(dirname $0)
 
-lastLine=1
+lastLine=1	
 currentLine=0
 
 logFile="/var/log/mail.log"
-timeToSleep='5'
+timeToSleep='60'		#checking $logFile after $timeToSleep seconds
+
 
 #Set initial time of file
 LTIME=`stat -c %Z $logFile`
-
 
 
 #move logs to postfix directory ../maillog
@@ -67,31 +67,32 @@ function getLogs(){
 	#get nr. of last line from $logFile
 	currentLine=`wc -l $logFile | cut -d " " -f 1`
 
-	#echo 'currentLine' $currentLine
+	#auxiliar file
 	file=`date '+logs_for_PostfixAdmin_%Y_%d_%m_%H_%M_%S'`
-	#echo 'lastLine' $lastLine
-	if [ $lastLine -gt $currentLine ]; then #if logrotate
-		echo "logrotate"
-		#tail +1 $logFile".1" | head -$((currentLine - lastLine )) > $file
-    		tail +$((lastLine)) $logFile".1" > $file
-		lastLine=1
+	
+	#if logrotate - move last logs
+	if [ $lastLine -gt $currentLine ];
+		#get last logs 
+		tail +$((lastLine)) $logFile".1" > $file
+		lastLine=1 #reset last line
 
     		#move logs to postfixadmin
-		data=`date --date='now' +%F`
+		data=`date --date='now' +%F`   # get current date    
 		moveLogs $file $data
+		
     		return
 	fi
 	
 
 	tail +$((lastLine)) $logFile | head -$((currentLine - lastLine )) > $file
 	
-	#move logs to postfixadmin
-	data=`date --date='now' +%F`
+	#move logs to postfixadmin (postfixadmin/maillog)
+	data=`date --date='now' +%F`    # get current date
 	moveLogs $file $data
 
 	lastLine=$currentLine
 
-	#remove file
+	#remove auxiliar file
 	rm $file
 }
 
