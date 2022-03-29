@@ -67,9 +67,9 @@ function getLogs(){
 	#get nr. of last line from $logFile
 	currentLine=`wc -l $logFile | cut -d " " -f 1`
 
-	echo 'currentLine' $currentLine
+	#echo 'currentLine' $currentLine
 	file=`date '+logs_for_PostfixAdmin_%Y_%d_%m_%H_%M_%S'`
-	echo 'lastLine' $lastLine
+	#echo 'lastLine' $lastLine
 	if [ $lastLine -gt $currentLine ]; then #if logrotate
 		echo "logrotate"
 		#tail +1 $logFile".1" | head -$((currentLine - lastLine )) > $file
