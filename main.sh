@@ -12,7 +12,7 @@ timeToSleep='60'		#checking $logFile after $timeToSleep seconds
 LTIME=`stat -c %Z $logFile`
 
 
-#move logs to postfix directory ../maillog
+#move logs to postfix directory postfixadmin/maillog
 function moveLogs(){	
 	
 	file=$1
